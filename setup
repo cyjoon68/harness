@@ -1,71 +1,122 @@
 #!/usr/bin/env bash
-# harness setup — Install harness meta-skill for OpenCode
+# harness-creator setup — Install harness-creator meta-skill for multiple AI coding agents
 set -e
 
-HARNESS_SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
-OPENCODE_SKILLS="$HOME/.config/opencode/skills"
-HARNESS_TARGET="$OPENCODE_SKILLS/harness"
+SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
+SKILL_NAME="harness-creator"
 QUIET=0
 TEAM_MODE=0
+HOST="auto"
 
 log() { [ "$QUIET" -eq 0 ] && echo "$@" || true; }
 
-# Parse flags
+# ─── Parse flags ──────────────────────────────
 while [ $# -gt 0 ]; do
   case "$1" in
     -q|--quiet) QUIET=1; shift ;;
     --team) TEAM_MODE=1; shift ;;
+    --host) HOST="$2"; shift 2 ;;
+    --host=*) HOST="${1#--host=}"; shift ;;
     *) shift ;;
   esac
 done
 
 echo ""
-echo "  ⚡ Harness — OpenCode Agent Team & Skill Factory"
-echo "  ================================================="
+echo "  ⚡ Harness-Creator — Agent Team & Skill Factory"
+echo "  ================================================"
 echo ""
 
-# 1. Ensure OpenCode skills directory exists
-mkdir -p "$OPENCODE_SKILLS"
+# ─── Agent skill directories ──────────────────
+declare -A AGENT_DIRS
+AGENT_DIRS[claude]="$HOME/.claude/skills"
+AGENT_DIRS[codex]="$HOME/.codex/skills"
+AGENT_DIRS[opencode]="$HOME/.config/opencode/skills"
+AGENT_DIRS[cursor]="$HOME/.cursor/skills"
+AGENT_DIRS[factory]="$HOME/.factory/skills"
+AGENT_DIRS[kiro]="$HOME/.kiro/skills"
 
-# 2. Remove existing harness symlink/directory
-if [ -L "$HARNESS_TARGET" ]; then
-  rm -f "$HARNESS_TARGET"
-elif [ -d "$HARNESS_TARGET" ]; then
-  rm -rf "$HARNESS_TARGET"
+# ─── Detect which agents are installed ────────
+INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_OPENCODE=0
+INSTALL_CURSOR=0; INSTALL_FACTORY=0; INSTALL_KIRO=0
+
+if [ "$HOST" = "auto" ]; then
+  command -v claude >/dev/null 2>&1 && INSTALL_CLAUDE=1
+  command -v codex >/dev/null 2>&1 && INSTALL_CODEX=1
+  command -v opencode >/dev/null 2>&1 && INSTALL_OPENCODE=1
+  command -v cursor >/dev/null 2>&1 && INSTALL_CURSOR=1
+  command -v droid >/dev/null 2>&1 && INSTALL_FACTORY=1
+  command -v kiro-cli >/dev/null 2>&1 && INSTALL_KIRO=1
+  # Default to opencode if nothing detected
+  if [ "$INSTALL_CLAUDE" -eq 0 ] && [ "$INSTALL_CODEX" -eq 0 ] && [ "$INSTALL_OPENCODE" -eq 0 ] \
+     && [ "$INSTALL_CURSOR" -eq 0 ] && [ "$INSTALL_FACTORY" -eq 0 ] && [ "$INSTALL_KIRO" -eq 0 ]; then
+    INSTALL_OPENCODE=1
+  fi
+elif [ "$HOST" = "claude" ]; then INSTALL_CLAUDE=1
+elif [ "$HOST" = "codex" ]; then INSTALL_CODEX=1
+elif [ "$HOST" = "opencode" ]; then INSTALL_OPENCODE=1
+elif [ "$HOST" = "cursor" ]; then INSTALL_CURSOR=1
+elif [ "$HOST" = "factory" ]; then INSTALL_FACTORY=1
+elif [ "$HOST" = "kiro" ]; then INSTALL_KIRO=1
+else
+  echo "  Unknown host: $HOST"
+  echo "  Supported: claude, codex, opencode, cursor, factory, kiro, auto"
+  exit 1
 fi
 
-# 3. Create symlink
-ln -snf "$HARNESS_SOURCE_DIR" "$HARNESS_TARGET"
-log "  Installed: $HARNESS_TARGET → $HARNESS_SOURCE_DIR"
+# ─── Install function ─────────────────────────
+install_skill() {
+  local agent_name="$1"
+  local target_dir="$2/${SKILL_NAME}"
+  local old_dir="$2/harness"   # legacy name cleanup
 
-# 4. Create project-level agents/skills directory template
-PROJECT_TEMPLATE="$HARNESS_SOURCE_DIR/references/harness-templates"
-if [ -d "$PROJECT_TEMPLATE" ]; then
-  log "  Templates: $PROJECT_TEMPLATE"
+  # Clean up legacy installation
+  if [ -L "$old_dir" ]; then rm -f "$old_dir"
+  elif [ -d "$old_dir" ]; then rm -rf "$old_dir"
+  fi
+
+  # Clean up current target
+  if [ -L "$target_dir" ]; then rm -f "$target_dir"
+  elif [ -d "$target_dir" ]; then rm -rf "$target_dir"
+  fi
+
+  mkdir -p "$2"
+  ln -snf "$SOURCE_DIR" "$target_dir"
+  log "  ${agent_name}: $target_dir → $SOURCE_DIR"
+}
+
+LINKED=0
+[ "$INSTALL_CLAUDE" -eq 1 ]   && { install_skill "Claude Code" "${AGENT_DIRS[claude]}"; LINKED=1; }
+[ "$INSTALL_CODEX" -eq 1 ]    && { install_skill "Codex CLI" "${AGENT_DIRS[codex]}"; LINKED=1; }
+[ "$INSTALL_OPENCODE" -eq 1 ] && { install_skill "OpenCode" "${AGENT_DIRS[opencode]}"; LINKED=1; }
+[ "$INSTALL_CURSOR" -eq 1 ]   && { install_skill "Cursor" "${AGENT_DIRS[cursor]}"; LINKED=1; }
+[ "$INSTALL_FACTORY" -eq 1 ]  && { install_skill "Factory Droid" "${AGENT_DIRS[factory]}"; LINKED=1; }
+[ "$INSTALL_KIRO" -eq 1 ]     && { install_skill "Kiro CLI" "${AGENT_DIRS[kiro]}"; LINKED=1; }
+
+if [ "$LINKED" -eq 0 ]; then
+  echo "  No supported AI coding agent found."
+  echo "  Install one of: Claude Code, Codex CLI, OpenCode, Cursor, Factory Droid, Kiro CLI"
+  echo "  Or use --host <name> to target a specific agent."
+  exit 1
 fi
 
 log ""
-log "  ✅ Harness installed successfully!"
+log "  ✅ Harness-Creator installed!"
 log ""
 log "  Usage:"
-log "    OpenCode에서 다음 명령어로 실행:"
-log '    "하네스 구성해줘"        → Standard 모드'
-log '    "딥 모드로 하네스 구성"  → Deep Mode (Ouroboros 인터뷰)'
-log '    "하네스 점검해줘"        → 기존 하네스 감사'
-log ""
-log "  생성되는 파일:"
-log "    .agents/{name}.md           — 에이전트 정의"
-log "    .agents/skills/{name}/SKILL.md — 스킬 파일"
+log '    "하네스 구성해줘"  →  딥 모드 인터뷰 후 하네스 생성'
+log '    "하네스 점검해줘"  →  기존 하네스 감사'
 log ""
 
-# Team mode: add to project .gitignore and init
+# ─── Team mode ────────────────────────────────
 if [ "$TEAM_MODE" -eq 1 ]; then
   PROJECT_DIR="$(pwd)"
   if [ -d "$PROJECT_DIR/.git" ]; then
-    echo "" >> "$PROJECT_DIR/.gitignore"
-    echo "# Harness - global skill reference" >> "$PROJECT_DIR/.gitignore"
-    echo ".agents/" >> "$PROJECT_DIR/.gitignore"
+    {
+      echo ""
+      echo "# Harness-Creator - generated artifact directories"
+      echo ".agents/"
+    } >> "$PROJECT_DIR/.gitignore"
     log "  Team mode: added .agents/ to .gitignore"
-    log "  Run 'git add .gitignore && git commit -m \"chore: add harness artifacts to .gitignore\"' to commit."
+    log "  Run: git add .gitignore && git commit -m \"chore: add harness-creator artifacts to .gitignore\""
   fi
 fi

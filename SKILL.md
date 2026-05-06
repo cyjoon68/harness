@@ -1,12 +1,13 @@
 ---
-name: harness
+name: harness-creator
 description: >
-  하네스를 구성합니다. Ouroboros 소크라테스식 인터뷰로 숨겨진 요구사항을 발굴한 후,
+  Harness-Creator. Ouroboros 소크라테스식 인터뷰로 숨겨진 요구사항을 발굴한 후,
   프로젝트 도메인에 맞는 전문 에이전트 팀과 스킬을 생성하는 메타 스킬.
   (1) "하네스 구성해줘", "하네스 구축해줘" 요청 시, (2) "에이전트 팀 만들어줘",
   "전문가 팀 구성해줘" 요청 시, (3) 새 도메인/프로젝트의 자동화 체계 구축 시,
   (4) 기존 하네스 확장/재구성 시, (5) "하네스 점검", "하네스 감사" 등 유지보수 요청 시 사용.
   하네스 구축 시 반드시 딥 모드(인터뷰 → 모호성 점수 → Seed 명세)를 거쳐야 함.
+  Claude Code, Codex CLI, OpenCode, Cursor, Factory Droid, Kiro CLI 지원.
 allowed-tools:
   - Bash
   - Read
@@ -28,10 +29,11 @@ triggers:
   - 하네스 감사
 ---
 
-# Harness — OpenCode Agent Team & Skill Factory
+# Harness-Creator — Agent Team & Skill Factory
 
 프로젝트 도메인에 맞는 전문 에이전트 팀을 설계하고, 각 에이전트가 사용할 스킬을 생성하는 메타 스킬.
-gstack 스타일의 글로벌 스킬로 동작하며, 생성된 하네스는 프로젝트 로컬(`.agents/skills/`)에 구성된다.
+gstack 스타일의 글로벌 스킬로 Claude Code, Codex CLI, OpenCode, Cursor 등 여러 플랫폼에서 동작하며,
+생성된 하네스는 프로젝트 로컬(`.agents/skills/`)에 구성된다.
 **하네스 메타 스킬은 Deep Mode가 기본이며, 생성된 하네스는 Deep Mode가 선택 옵션이다.**
 
 **핵심 원칙:**

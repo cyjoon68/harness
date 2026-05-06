@@ -1,13 +1,13 @@
 ---
 name: orchestrator-template
-description: "하네스의 오케스트레이터 스킬 템플릿. 생성된 하네스의 전체 워크플로우를 조율. Deep Mode(인터뷰 → Seed)가 항상 선행됨."
+description: "하네스의 오케스트레이터 스킬 템플릿. 생성된 하네스의 전체 워크플로우를 조율. Deep Mode(인터뷰 → Seed)는 선택 옵션."
 ---
 
 # Orchestrator Skill Template
 
 이 템플릿은 하네스가 생성하는 오케스트레이터 스킬의 표준 형식이다.
 오케스트레이터는 모든 에이전트와 스킬을 하나의 워크플로우로 엮는 특수 스킬이다.
-**실행 시 반드시 Deep Mode(소크라테스식 인터뷰)로 시작한다.**
+**Deep Mode(소크라테스식 인터뷰)는 선택 옵션이다. 필요 시에만 실행한다.**
 
 ## 템플릿 (Agent Teams 모드)
 
@@ -18,7 +18,7 @@ description: >
   {도메인} {작업}의 전체 워크플로우를 조율. 에이전트 팀을 구성하고 작업을 할당하며
   결과를 통합. "하네스 실행", "워크플로우 시작", "{도메인} 작업" 요청 시,
   "다시 실행", "재실행", "업데이트" 후속 요청 시 사용.
-  실행 시 반드시 Deep Mode(인터뷰 → 모호성 점수 → Seed)로 시작함.
+  Deep Mode(인터뷰 → 모호성 점수 → Seed)는 사용자가 요청하거나 작업이 모호할 때만 실행.
 allowed-tools:
   - Bash
   - Read
@@ -51,9 +51,9 @@ mkdir -p "$_WORKSPACE_DIR"
 
 ---
 
-## Phase D: Deep Mode — Domain Interview (필수)
+## Phase D: Deep Mode — Domain Interview (선택)
 
-하네스의 첫 실행이거나 새 입력이 들어온 경우 반드시 이 Phase를 거친다.
+작업이 모호하거나 사용자가 Deep Mode를 요청한 경우에만 이 Phase를 거친다.
 Ouroboros 방법론으로 현재 작업의 구체적인 목표와 제약을 명확히 한다.
 
 ### Step D-1: 소크라테스식 인터뷰
@@ -139,7 +139,7 @@ Ambiguity = 1 − Σ(clarityᵢ × weightᵢ)
 name: {orchestrator-name}
 description: >
   {도메인} {작업}의 워크플로우 조율. 서브 에이전트를 병렬/순차 호출.
-  실행 시 반드시 Deep Mode(인터뷰 → Seed)로 시작함.
+  Deep Mode(인터뷰 → Seed)는 사용자가 요청하거나 작업이 모호할 때만 실행.
 allowed-tools:
   - Bash
   - Read
@@ -153,7 +153,7 @@ allowed-tools:
 ## Phase 0: 컨텍스트 확인
 (Agent Teams 모드와 동일)
 
-## Phase D: Deep Mode — Domain Interview (필수)
+## Phase D: Deep Mode — Domain Interview (선택)
 (Agent Teams 모드와 동일)
 
 ## Phase 1: {Phase 1 이름}

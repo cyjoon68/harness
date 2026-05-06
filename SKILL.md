@@ -299,8 +299,7 @@ description: "{적극적 트리거 설명. 스킬이 하는 일 + 트리거 상�
 오케스트레이터는 전체 팀을 조율하는 특수 스킬이다.
 
 **오케스트레이터에 포함할 사항:**
-- **Phase D: Deep Mode — Domain Interview (선택)** — 작업이 모호하거나 사용자가 요청할 때만 실행. 소크라테스식 질문 → 모호성 점수 → Seed 확정.
-- Phase D는 선택 옵션으로, 명확한 작업 요청 시 건너뛰고 바로 Phase 1부터 실행 가능.
+- **Phase D: Deep Mode — Domain Interview (선택)** — Phase 0에서 작업이 모호하다고 판단되면 사용자에게 "Deep Mode를 사용할까요?" 질문. Yes 시 소크라테스식 질문 → 모호성 점수 → Seed 확정. No 또는 명확한 작업 시 건너뜀.
 
 오케스트레이터 템플릿 상세: `references/orchestrator-template.md` 참조.
 

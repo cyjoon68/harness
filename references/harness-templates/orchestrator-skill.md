@@ -53,8 +53,17 @@ mkdir -p "$_WORKSPACE_DIR"
 
 ## Phase D: Deep Mode — Domain Interview (선택)
 
-작업이 모호하거나 사용자가 Deep Mode를 요청한 경우에만 이 Phase를 거친다.
+사용자가 명시적으로 요청했거나, 작업이 모호하다고 판단될 때만 이 Phase를 거친다.
 Ouroboros 방법론으로 현재 작업의 구체적인 목표와 제약을 명확히 한다.
+
+### Deep Mode 실행 결정
+
+Phase 0의 컨텍스트 확인 결과, 작업이 모호하면 사용자에게 질문한다:
+
+> "작업이 명확하지 않은 부분이 있습니다. Deep Mode(인터뷰 → 명세 확정)를 사용할까요?"
+
+- 사용자가 **Yes** → Phase D 전체 실행
+- 사용자가 **No** → Phase D 건너뛰고 Phase 1부터 실행, 모호한 부분은 추정하여 진행
 
 ### Step D-1: 소크라테스식 인터뷰
 

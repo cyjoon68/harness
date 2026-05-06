@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# harness setup — Install harness meta-skill for OpenCode
+set -e
+
+HARNESS_SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
+OPENCODE_SKILLS="$HOME/.config/opencode/skills"
+HARNESS_TARGET="$OPENCODE_SKILLS/harness"
+QUIET=0
+TEAM_MODE=0
+
+log() { [ "$QUIET" -eq 0 ] && echo "$@" || true; }
+
+# Parse flags
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -q|--quiet) QUIET=1; shift ;;
+    --team) TEAM_MODE=1; shift ;;
+    *) shift ;;
+  esac
+done
+
+echo ""
+echo "  ⚡ Harness — OpenCode Agent Team & Skill Factory"
+echo "  ================================================="
+echo ""
+
+# 1. Ensure OpenCode skills directory exists
+mkdir -p "$OPENCODE_SKILLS"
+
+# 2. Remove existing harness symlink/directory
+if [ -L "$HARNESS_TARGET" ]; then
+  rm -f "$HARNESS_TARGET"
+elif [ -d "$HARNESS_TARGET" ]; then
+  rm -rf "$HARNESS_TARGET"
+fi
+
+# 3. Create symlink
+ln -snf "$HARNESS_SOURCE_DIR" "$HARNESS_TARGET"
+log "  Installed: $HARNESS_TARGET → $HARNESS_SOURCE_DIR"
+
+# 4. Create project-level agents/skills directory template
+PROJECT_TEMPLATE="$HARNESS_SOURCE_DIR/references/harness-templates"
+if [ -d "$PROJECT_TEMPLATE" ]; then
+  log "  Templates: $PROJECT_TEMPLATE"
+fi
+
+log ""
+log "  ✅ Harness installed successfully!"
+log ""
+log "  Usage:"
+log "    OpenCode에서 다음 명령어로 실행:"
+log '    "하네스 구성해줘"        → Standard 모드'
+log '    "딥 모드로 하네스 구성"  → Deep Mode (Ouroboros 인터뷰)'
+log '    "하네스 점검해줘"        → 기존 하네스 감사'
+log ""
+log "  생성되는 파일:"
+log "    .agents/{name}.md           — 에이전트 정의"
+log "    .agents/skills/{name}/SKILL.md — 스킬 파일"
+log ""
+
+# Team mode: add to project .gitignore and init
+if [ "$TEAM_MODE" -eq 1 ]; then
+  PROJECT_DIR="$(pwd)"
+  if [ -d "$PROJECT_DIR/.git" ]; then
+    echo "" >> "$PROJECT_DIR/.gitignore"
+    echo "# Harness - global skill reference" >> "$PROJECT_DIR/.gitignore"
+    echo ".agents/" >> "$PROJECT_DIR/.gitignore"
+    log "  Team mode: added .agents/ to .gitignore"
+    log "  Run 'git add .gitignore && git commit -m \"chore: add harness artifacts to .gitignore\"' to commit."
+  fi
+fi

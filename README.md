@@ -45,7 +45,7 @@ gstack 스타일로 여러 AI 코딩 에이전트(Claude Code, Codex CLI, OpenCo
 ### 자동 설치 (권장)
 
 ```bash
-git clone --single-branch --depth 1 https://github.com/cyjoon68/harness.git
+git clone --single-branch --depth 1 https://github.com/cyjoon68/harness-creator.git
 cd harness
 chmod +x setup && ./setup
 ```
@@ -74,13 +74,13 @@ chmod +x setup && ./setup
 
 ```bash
 # OpenCode
-git clone --single-branch --depth 1 https://github.com/cyjoon68/harness.git ~/.config/opencode/skills/harness-creator
+git clone --single-branch --depth 1 https://github.com/cyjoon68/harness-creator.git ~/.config/opencode/skills/harness-creator
 
 # Claude Code
-git clone --single-branch --depth 1 https://github.com/cyjoon68/harness.git ~/.claude/skills/harness-creator
+git clone --single-branch --depth 1 https://github.com/cyjoon68/harness-creator.git ~/.claude/skills/harness-creator
 
 # Codex CLI
-git clone --single-branch --depth 1 https://github.com/cyjoon68/harness.git ~/.codex/skills/harness-creator
+git clone --single-branch --depth 1 https://github.com/cyjoon68/harness-creator.git ~/.codex/skills/harness-creator
 ```
 
 ### 팀 모드

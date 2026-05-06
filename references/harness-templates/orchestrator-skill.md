@@ -1,12 +1,13 @@
 ---
 name: orchestrator-template
-description: "하네스의 오케스트레이터 스킬 템플릿. 생성된 하네스의 전체 워크플로우를 조율."
+description: "하네스의 오케스트레이터 스킬 템플릿. 생성된 하네스의 전체 워크플로우를 조율. Deep Mode(인터뷰 → Seed)가 항상 선행됨."
 ---
 
 # Orchestrator Skill Template
 
 이 템플릿은 하네스가 생성하는 오케스트레이터 스킬의 표준 형식이다.
 오케스트레이터는 모든 에이전트와 스킬을 하나의 워크플로우로 엮는 특수 스킬이다.
+**실행 시 반드시 Deep Mode(소크라테스식 인터뷰)로 시작한다.**
 
 ## 템플릿 (Agent Teams 모드)
 
@@ -17,6 +18,7 @@ description: >
   {도메인} {작업}의 전체 워크플로우를 조율. 에이전트 팀을 구성하고 작업을 할당하며
   결과를 통합. "하네스 실행", "워크플로우 시작", "{도메인} 작업" 요청 시,
   "다시 실행", "재실행", "업데이트" 후속 요청 시 사용.
+  실행 시 반드시 Deep Mode(인터뷰 → 모호성 점수 → Seed)로 시작함.
 allowed-tools:
   - Bash
   - Read
@@ -28,6 +30,8 @@ allowed-tools:
 # {Orchestrator Name} — {도메인} 워크플로우 오케스트레이터
 
 {도메인}의 {작업}을 위한 전체 워크플로우를 조율하는 오케스트레이터.
+
+---
 
 ## Phase 0: 컨텍스트 확인
 
@@ -45,6 +49,55 @@ mkdir -p "$_WORKSPACE_DIR"
 - `_workspace/` 존재 + 새 입력 → **새 실행** (기존 _workspace를 `_workspace_prev/`로 이동)
 - `_workspace/` 미존재 → **초기 실행**
 
+---
+
+## Phase D: Deep Mode — Domain Interview (필수)
+
+하네스의 첫 실행이거나 새 입력이 들어온 경우 반드시 이 Phase를 거친다.
+Ouroboros 방법론으로 현재 작업의 구체적인 목표와 제약을 명확히 한다.
+
+### Step D-1: 소크라테스식 인터뷰
+
+다음 질문들로 숨겨진 요구사항을 발굴한다. 한 번에 모두 던지지 말고, 답변에 따라 다음 질문을 선택한다.
+
+**핵심 질문:**
+1. "이번에 구체적으로 무엇을 해야 하나요? 한 문장으로 설명해주세요."
+2. "이 작업의 성공 기준은 무엇인가요? 어떻게 측정할 수 있나요?"
+3. "알려진 제약 조건이 있나요? (시간, 예산, 기술, 데이터)"
+4. "이미 있는 자료나 참고할 만한 것이 있나요?"
+5. "이 도메인에서 가장 까다로운 부분은 무엇인가요?"
+
+### Step D-2: 모호성 점수 산정
+
+답변을 바탕으로 모호성 점수를 계산한다:
+
+```
+Ambiguity = 1 − Σ(clarityᵢ × weightᵢ)
+```
+
+| 차원 | 가중치 |
+|------|-------|
+| 목표 명확도 — "무엇을 해야 하는지 구체적인가?" | 40% |
+| 제약 명확도 — "제한 사항이 정의되었는가?" | 30% |
+| 성공 기준 — "결과가 측정 가능한가?" | 30% |
+
+- Ambiguity ≤ 0.20 → ✅ 작업 실행 진행
+- Ambiguity > 0.20 → 🔄 추가 질문으로 모호성 제거 후 재측정
+
+### Step D-3: 작업 Seed 확정
+
+인터뷰 결과를 확정된 작업 명세로 정리하고 사용자 확인을 받는다:
+
+```markdown
+## 작업 Seed
+- **목표:** {구체적 목표}
+- **성공 기준:** {측정 가능한 기준}
+- **제약:** {알려진 제약}
+- **범위:** {In scope / Out of scope}
+```
+
+---
+
 ## Phase 1: {Phase 1 이름}
 
 **실행 모드:** {Agent Teams / Sub-agents / Hybrid}
@@ -56,6 +109,8 @@ mkdir -p "$_WORKSPACE_DIR"
 **실행 모드:** {Agent Teams / Sub-agents / Hybrid}
 
 {Phase 2 설명과 에이전트 호출}
+
+---
 
 ## 데이터 전달 프로토콜
 
@@ -84,16 +139,21 @@ mkdir -p "$_WORKSPACE_DIR"
 name: {orchestrator-name}
 description: >
   {도메인} {작업}의 워크플로우 조율. 서브 에이전트를 병렬/순차 호출.
+  실행 시 반드시 Deep Mode(인터뷰 → Seed)로 시작함.
 allowed-tools:
   - Bash
   - Read
   - Write
   - Edit
+  - AskUserQuestion
 ---
 
 # {Orchestrator Name} — {도메인} 워크플로우 오케스트레이터
 
 ## Phase 0: 컨텍스트 확인
+(Agent Teams 모드와 동일)
+
+## Phase D: Deep Mode — Domain Interview (필수)
 (Agent Teams 모드와 동일)
 
 ## Phase 1: {Phase 1 이름}
